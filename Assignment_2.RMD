@@ -1,0 +1,72 @@
+---
+title: "Assignment_2"
+author: "Priyanshi Patel and Ajay Pawar"
+date: "10/4/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+##Library
+```{r }
+library(rpart.plot)
+library(tidyverse)
+library(rpart)
+```
+
+##Data Frame
+```{r}
+zoo1_data = read.csv("zoo1.csv")
+```
+
+##Decision Tree
+```{r }
+
+zoo1_data <- zoo1_data %>%
+  modify_if(is.logical, factor, levels = c(TRUE, FALSE)) %>%
+  modify_if(is.character, factor)
+
+#train_data$Type %>% as.factor(Type)
+
+
+summary(zoo1_data)
+str(zoo1_data)
+
+nrow(zoo1_data)
+
+
+##data <- train_data
+set.seed(60)
+## sampling it for 70 % and 30%
+indx <- sample(2, size = nrow(zoo1_data) , replace = TRUE, prob= c(0.7,0.3))
+
+##train and test data
+train_1 <- zoo1_data[indx == 1, ]
+nrow(train_1)
+test_1 <- zoo1_data [indx ==2,]
+nrow(test_1)
+
+
+
+## Ratio test and train
+nrow(train_1)/nrow(zoo1_data)
+
+
+
+## create tree for Response Target variable and all other variables##
+mytree <- rpart(type ~ . , method='class', data= train_1[,-c(1)])
+rpart.plot(mytree)
+print(mytree)
+
+rpart.plot(mytree, extra = 2)
+
+prediction <- predict(mytree, test_1[,-c(1,18)], type="class")
+test_results <- as.data.frame(prediction)
+#Binding result to Column Type
+test_results <- cbind(test_results, test_1$type)
+colnames(test_results) <- c('predicted', 'Actual')
+
+#confusion matrix
+confusionMat <- table(test_1$type, predict)
+
+```
